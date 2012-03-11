@@ -233,15 +233,12 @@ void StateHelper::AddTrace(Stop heart)
 	//Push vertex of Heart to the trace
 	t.PushStop(heart);
 	Random rnd;
-	heart = Stop(rnd.Float(-1), rnd.Float(-1), rnd.Float(-1));
-	/*
-	heart.X *= rnd.Float(-1);
-	heart.Y *= rnd.Float(-1);
-	heart.Z *= rnd.Float(-1);*/
+	Stop sphere(rnd.Float(-1), rnd.Float(-1), rnd.Float(-1));
+
 	//Push vertex of Sphere to the trace
-	Norm<float>::Normalize(heart.X, heart.Y, heart.Z);
-	heart *= 1.5;
-	t.PushStop(heart);
+	Norm<float>::Normalize(sphere.X, sphere.Y, sphere.Z);
+	sphere *= 1.5;
+	t.PushStop(sphere);
 	
 	//Push trace to the morphing
 	heartMorphing->PushTrace(t);
