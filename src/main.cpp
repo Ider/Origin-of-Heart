@@ -34,7 +34,7 @@ static GLfloat windowSize = 1.8;
 
 GLfloat theta = 0.0;
 
-bool halfHeart = false;
+bool halfHeart = true;
 unsigned int timersec = 1;
 Morphing<2>* hm ;
 
@@ -52,8 +52,11 @@ void SetView()
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	
-	glLoadMatrixf(rotModelView);
-	gluLookAt(0.0, .0, 0.0, .0, -5.0, 0.0, 0.0, 0.0, 1.0);
+	glTranslatef(0.0,0.0,-5);
+	//glLoadMatrixf(rotModelView);
+	glMultMatrixf(rotModelView);
+	gluLookAt(.0, .0, 0.0, .0, -5.0, 0.0, 0.0, 0.0, 1.0);
+	//gluLookAt(0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 }
 
 void DrawBackground()
@@ -69,7 +72,7 @@ void DrawBackground()
 	
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	texture->Bind();
-	glColor3f(1.0, 0.0, 1.0);
+	glColor3f(1.0, 1.0, 1.0);
 	glBegin(GL_POLYGON);
 	
 	glTexCoord2f(0.0, 0.0); glVertex3f(-windowSize, -windowSize, -7.0);
@@ -93,7 +96,7 @@ void display(void)
 	//glRotatef(hTheta, 0.0, .0, 1.0); 
 	//glRotatef(vTheta, 1.0, .0, 0.0); 
 	
-	float matAmbAndDif1[] = {0.9, 0.0, 0.0, 1.0};
+	float matAmbAndDif1[] = {0.9, 0.9, 0.9, 1.0};
 	float matAmbAndDif2[] = {0.0, 0.9, 0.0, 1.0};
 	float matSpec[] = {1.0, 1.0, 1.0, 1.0};
 	float matShine[] = {50.0};
@@ -114,13 +117,26 @@ void display(void)
 	DrawBackground();
 	if(halfHeart)
 	{
+		
+		glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP); 
+		glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
+		glEnable(GL_TEXTURE_GEN_S);	
+		glEnable(GL_TEXTURE_GEN_T);	
+		glEnable(GL_TEXTURE_2D);
+
 		glEnable(GL_LIGHTING);
 		glColor3f(1.0, 1.0, 1.0);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				
 		//glScalef(1.5, 1.5, 1.5);
 		HeartList& hl = *HeartList::Instance();
 		hl.Display();
-		
+		//glutSolidSphere(0.5, 20, 20);
+		glDisable(GL_TEXTURE_GEN_S);
+		glDisable(GL_TEXTURE_GEN_T);
+		glDisable(GL_TEXTURE_2D);
+		glDisable(GL_LIGHTING);
+
 		/*glPushMatrix();
 		glRotatef(180.0, 0.0, 0.0, 1.0);
 		hl.Display();
@@ -143,14 +159,13 @@ void display(void)
 
 void reshape(int w, int h)
 {
-	glutReshapeWindow(700, 700);
+	glutReshapeWindow(800, 600);
 	glViewport(0, 0, (GLsizei) w, (GLsizei) h);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	//	gluPerspective(60.0, (float)w/(float)h, 1.0, 20.0);
 	
-	glOrtho(-windowSize,windowSize, -windowSize, windowSize, -8.0, 8.0);
-	
+	glOrtho(-windowSize,windowSize, -windowSize*0.75, windowSize*0.75, -180.0, 180.0);
 	
 	//glutPostRedisplay();
 }
@@ -295,7 +310,7 @@ void init()
 	glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE); // Enable two-sided lighting.
 	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_FALSE); // Enable local viewpoint.
 	
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE); 
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE); 
 
 	hm = StateHelper::GetHeartMorphing();
 	hm->SetState(StateHelper::GetState(StateHelper::Processing));
@@ -320,7 +335,7 @@ int main (int argc, char * argv[]) {
 	glutInit(&argc, argv);
 	
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-	glutInitWindowSize (700, 700);
+	glutInitWindowSize (800, 600);
 	glutInitWindowPosition (100, 100);
 	
 	glutCreateWindow("Origin of Heart");
